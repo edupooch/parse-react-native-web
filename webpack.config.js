@@ -43,6 +43,17 @@ const babelLoaderConfiguration = {
   },
 };
 
+//para utilizar o webview
+const rule = {
+  test: /postMock.html$/,
+  use: {
+    loader: 'file-loader',
+    options: {
+      name: '[name].[ext]',
+    },
+  },
+};
+
 // This is needed for loading css
 const cssLoaderConfiguration = {
   test: /\.css$/,
@@ -118,6 +129,10 @@ module.exports = {
       '@expo/vector-icons': 'expo-web',
       expo: 'expo-web',
       'react-native': 'react-native-web',
+      'WebView': 'react-native-web-webview',
     },
+    
   },
+
+  
 };

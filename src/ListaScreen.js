@@ -11,10 +11,11 @@ import {
   TouchableOpacity,
   Image
 } from "react-native";
+
 import { DocumentPicker } from "expo";
 import { Ionicons } from "@expo/vector-icons";
+
 import { AsyncStorage } from "react-native";
-import ReactDOM from "react-dom";
 
 const SERVER_URL = "http://192.168.0.9:1337/parse/";
 const APP_ID = "testItems";
@@ -32,10 +33,8 @@ export default class App extends React.Component {
     this.state = {
       items: [],
       itemName: "",
-      fileBase64: undefined,
-      document: props.document
+      fileBase64: undefined
     };
-    this.myRef = React.createRef();
     this.initializeParse();
     this.initializeList();
   }
@@ -173,32 +172,12 @@ export default class App extends React.Component {
     }
   };
 
-  _onChangeFileWeb = e => {
-    console.log(e.target.files[0]);
-    let reader = new FileReader();
-    reader.readAsDataURL(e.target.files[0]);
-    reader.onload = () => {
-      this.setState({
-        fileBase64: new Parse.File("filename", {
-          base64: reader.result
-        })
-      });
-    };
-    reader.onerror = error => {
-      throw new Error("There was an error reading the file " + error);
-    };
-  };
-
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.inputContainer}>
-          <InputFile
-            fileBase64={this.state.fileBase64}
-            onChange={this._onChangeFileWeb}
-            onClick={this._onClickPickFile}
-          />
-
+          <InputFile/>
+          
           <TextInput
             style={styles.textInputStyle}
             onChangeText={text => this.setState({ itemName: text })}
@@ -217,59 +196,30 @@ export default class App extends React.Component {
   }
 }
 
-class InputFile extends React.Component {
-  constructor(props) {
-    super(props);
-    this.myRef = React.createRef();
+const InputFile = props => {
+  if (Platform.OS == "web") {
+    React.createElement('input',{type:'file', name:'myfile'});
+  } else {
+    return (
+      <TouchableOpacity
+        onPress={this._onClickPickFile}
+        style={styles.btContainer}
+      >
+        <Ionicons
+          name="md-image"
+          size={35}
+          color={this.state.fileBase64 ? "#367ec1" : "#dddddd"}
+        />
+      </TouchableOpacity>
+    );
   }
-
-  simulateClick(e) {
-    e.click();
-  }
-
-  render() {
-    if (Platform.OS == "web") {
-      return (
-        <div className="image-upload" style={{ width: 40, height: 40 }}>
-          <label htmlFor="file-input">
-            <Ionicons
-              name="md-image"
-              size={35}
-              color={this.props.fileBase64 ? "#367ec1" : "#bbb"}
-            />
-          </label>
-
-          <input
-            type="file"
-            id="file-input"
-            onChange={this.props.onChange}
-            style={{ visibility: "hidden" }}
-          />
-        </div>
-      );
-    } else {
-      return (
-        <TouchableOpacity
-          onPress={this.props.onClick}
-          style={styles.btContainer}
-        >
-          <Ionicons
-            name="md-image"
-            size={35}
-            color={this.props.fileBase64 ? "#367ec1" : "#bbb"}
-          />
-        </TouchableOpacity>
-      );
-    }
-  }
-}
+};
 
 const ListItems = props => {
   let views = [];
   for (let i = 0; i < props.items.length; i++) {
     views.push(
       <ListElement
-        style={{ flex: 1 }}
         item={props.items[i]}
         deleteItem={props.deleteItem}
         key={i}
@@ -313,28 +263,18 @@ const styles = StyleSheet.create({
 
   inputContainer: {
     padding: 10,
-    marginBottom: 20,
-    alignItems: "center",
-    flexDirection: "row",
-    borderRadius: 3,
-    backgroundColor: "#F0F0F0",
-    shadowColor: "#000000",
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 1,
-    elevation: 1
+    alignItems: "flex-start",
+    flexDirection: "row"
   },
 
   textInputStyle: {
-    flex: 1,
     padding: 2,
     height: 40,
-    marginRight: 5,
-    marginLeft: 5
+    flex: 1
   },
 
   btContainer: {
-    justifyContent: "center"
+    paddingRight: 5
   },
 
   itemContainer: {
